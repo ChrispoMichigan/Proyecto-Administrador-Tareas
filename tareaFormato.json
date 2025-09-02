@@ -1,7 +1,11 @@
+
 {
     "id": 1,
     "titulo": "titulo",
     "fecha": "2013-10-21T13:28:06.419Z",
-    "estado": "Pendiente",
+    "estado": false,
     "prioridad": false
 }
+
+
+
