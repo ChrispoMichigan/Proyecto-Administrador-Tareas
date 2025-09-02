@@ -4,6 +4,7 @@ import json
 import tkinter as tk
 from tkinter import ttk
 from tkcalendar import Calendar
+import requests
 
 
 main = tk.Tk()
@@ -57,26 +58,27 @@ def color_date():
     fecha_date = cal.selection_get()
     print(f"Fecha seleccionada:", fecha_date)
     
+    response = requests.get("http://127.0.0.1:8000/getAllTasks")
+
+    if response.status_code == 200:
+        data = response.json()
+        # print(data)
+    else:
+        print("Error:", response.status_code)
+    print(len(data['data']))
+    for i, dato in enumerate(data['data']):
+        print(f'{i}')
+        print(dato)
 
     #aqui se usaria la funcion para añadir tareas a la lista
 
-    data = {
-        "data" : {
-            "id": 1,
-            "titulo": "tarea 1",
-            "fecha": "2025-09-01",
-            "estado": False,
-            "prioridad": False
-        }
-    }
     
-    year = data ['data']['fecha'] [0:4]
+    # year = data ['data']['fecha'] [0:4]
     
-    month = data ['data']['fecha'] [5:7]
-    day = data ['data']['fecha'] [8:-1]
+    # month = data ['data']['fecha'] [5:7]
+    # day = data ['data']['fecha'] [8:-1]
     
-    fecha = date(int(year), int(month), int(day))
-
+    # fecha = date(int(year), int(month), int(day))
 
     cal.calevent_create(fecha, data['data']['titulo'], "tarea")
 
