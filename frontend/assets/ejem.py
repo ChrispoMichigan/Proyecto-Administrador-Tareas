@@ -1,6 +1,6 @@
 
-from datetime import date, datetime
-import os
+from datetime import date
+import json
 import tkinter as tk
 from tkinter import ttk
 from tkcalendar import Calendar
@@ -57,8 +57,28 @@ def color_date():
     fecha_date = cal.selection_get()
     print(f"Fecha seleccionada:", fecha_date)
     
+
     #aqui se usaria la funcion para añadir tareas a la lista
-    cal.calevent_create(fecha_date, "Tarea 1", "tarea")
+
+    data = {
+        "data" : {
+            "id": 1,
+            "titulo": "tarea 1",
+            "fecha": "2025-09-01",
+            "estado": False,
+            "prioridad": False
+        }
+    }
+    
+    year = data ['data']['fecha'] [0:4]
+    
+    month = data ['data']['fecha'] [5:7]
+    day = data ['data']['fecha'] [8:-1]
+    
+    fecha = date(int(year), int(month), int(day))
+
+
+    cal.calevent_create(fecha, data['data']['titulo'], "tarea")
 
     cal.tag_config("tarea", background="red", foreground="white")
     
