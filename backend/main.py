@@ -74,19 +74,6 @@ class ListaEnlazada:
 
         return None
 
-    def imprimir_lista(self):
-        actual = self.head
-        elementos = []
-
-        while actual:
-            elementos.append(f"ID: {actual.datos.id}, Título: {actual.datos.titulo}")
-            actual = actual.siguiente
-
-        if elementos:
-            print(" -> ".join(elementos))
-        else:
-            print("Lista vacía")
-
     def obtenerTodasLasTareas(self):
         actual = self.head
 
@@ -100,6 +87,17 @@ class ListaEnlazada:
             actual = actual.siguiente
 
         return elementos
+    
+    def cambiarEstadoTarea(self, id):
+        data = self.buscar(id)
+        if data is None:
+            return {"Error": f"No se encontró tarea con id {id}"}
+        
+        if data.estado:
+            data.estado = False
+            return {"Sucess" : "Estado cambiado a falso"}
+        data.estado = True
+        return {"Sucess" : "Estado cambiado a verdadero"}
 
 
 lista_tareas = ListaEnlazada()
@@ -136,13 +134,20 @@ def getAllTasks():
     response = lista_tareas.obtenerTodasLasTareas()
     return response
 
-class TaskDelete(BaseModel):
+class TaskId(BaseModel):
     id: int
 
 @app.post("/deleteTaskById")
-def deleteTaskById(task : TaskDelete):
+def deleteTaskById(task : TaskId):
     response = lista_tareas.eliminar_tarea(task.id)
     return response
+
+@app.post("/changeTaskStatusById")
+def changeTaskStatusById(task : TaskId):
+    response = lista_tareas.cambiarEstadoTarea(task.id)
+    return response
+
+
 # @app.get("/")
 # def read_root():
 #     return {"Hello": "World"}
