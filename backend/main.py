@@ -8,7 +8,7 @@ from pydantic import BaseModel
 app = FastAPI()
 
 class Data():
-    def __init__(self, id=-1, titulo="", fecha=date.today(), estado=False, prioridad=False):
+    def __init__(self, id=None, titulo=None, fecha=None, estado=False, prioridad=False):
         self.id = id
         self.titulo = titulo
         self.fecha = fecha
@@ -36,13 +36,14 @@ class ListaEnlazada:
 
         if self.head is None:
             self.head = nuevo_nodo
-            return
+            return {"Success": "Tarea creada"}
 
         actual = self.head
         while actual.siguiente:
             actual = actual.siguiente
 
         actual.siguiente = nuevo_nodo
+        return {"Success": "Tarea creada"}
 
     def eliminar_tarea(self, id):
         if self.head is None:
@@ -50,7 +51,7 @@ class ListaEnlazada:
 
         if self.head.datos.id == id:
             self.head = self.head.siguiente
-            return
+            return {"Success": f"Tarea con id {id} eliminada"}
 
         actual = self.head
         while actual.siguiente and actual.siguiente.datos.id != id:
@@ -58,6 +59,10 @@ class ListaEnlazada:
 
         if actual.siguiente:
             actual.siguiente = actual.siguiente.siguiente
+            return {"Success": f"Tarea con id {id} eliminada"}
+        
+        # Caso donde el ID no existe
+        return {"Error": f"No se encontró tarea con id {id}"}
 
     def buscar(self, id):
         actual = self.head
@@ -123,19 +128,19 @@ def createTask(task: TaskCreate):
     newTask.estado = task.estado
     newTask.prioridad = task.prioridad
 
-    lista_tareas.insertar_al_final(newTask)
-    return 
+    response = lista_tareas.insertar_al_final(newTask)
+    return response
 
 @app.get("/getAllTasks")
 def getAllTasks():
-    return lista_tareas.obtenerTodasLasTareas()
+    response = lista_tareas.obtenerTodasLasTareas()
+    return response
 
 class TaskDelete(BaseModel):
     id: int
 
 @app.post("/deleteTaskById")
 def deleteTaskById(task : TaskDelete):
-    print(task.id)
     response = lista_tareas.eliminar_tarea(task.id)
     return response
 # @app.get("/")
