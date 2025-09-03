@@ -13,7 +13,7 @@ main = tk.Tk()
 main.title("Main Window")
 main.config(bg="#E4E2E2")
 main.geometry("700x700")
-
+main.resizable(False, False)
 
 style = ttk.Style(main)
 style.theme_use("clam")
@@ -145,12 +145,36 @@ def AddTaskViewsInCalender():
         cal.calevent_create(fecha, task['titulo'], "tarea")
         cal.tag_config("tarea", background="red", foreground="white")
 
+
+
 btnAdd = ttk.Button(master=main, text="añadir tarea", command=Add_tarea)
 btnAdd.pack(pady=10)
 
 
+def BorrarTarea ():
+    data={"id":None}
+
+
+    seleccion=menutareas.curselection()
+    print(type(seleccion))
+    print((seleccion))
+    if seleccion:
+        id=seleccion.split(' ')[0]
+        data["id"] = int(id)
+    else:
+        print("no selecciono una tarea")
+        return
+
+    url = "http://127.0.0.1:8000/deleteTaskById"
+    response = requests.post(url, json=data)
+
+    if response.status_code != 200:
+        print('Error')
+    
+
+
 #boton para borrar sin comando aun
-btnDelete = ttk.Button(master=main, text="BorrarTarea",)
+btnDelete = ttk.Button(master=main, text="BorrarTarea",command=BorrarTarea)
 btnDelete.place(relx=0.75, rely=0.65)
 #boton para hacer prioridad 
 btnPriority = ttk.Button(master=main, text="Establecer como prioridad",)
@@ -166,6 +190,20 @@ tk.Label(master=main, text="Tareas:").place(relx=0.2, rely=0.55)
 menutareas = tk.Listbox(master=main, width=70, height=12)
 menutareas.place(relx= 0.1, rely=0.6)
 
+#MAS SCROLLL BARSSSS
+# Crear una Scrollbar y asociarla a la Listbox
+scrollbarTareas = tk.Scrollbar(main, orient="vertical", command=menutareas.yview)
+scrollbarTareas.place(x=55,y=420,height=200)
+
+# Crear una segunda scrollbar porsi ponen recordatorios muy largos
+scrollbarTareas2 = tk.Scrollbar(main, orient="horizontal", command=menutareas.xview)
+scrollbarTareas2.place(x=55,y=615,width=440)
+
+# Configurar la Listbox para que use las Scrollbar
+menutareas.config(yscrollcommand=scrollbarTareas.set)
+menutareas.config(xscrollcommand=scrollbarTareas2.set)
+
+
 def AddTaskViewsInList():
     url = "http://127.0.0.1:8000/getAllTasks"
     response = requests.get(url)
@@ -174,6 +212,19 @@ def AddTaskViewsInList():
         print('Error')
     else:
         data = response.json()
+    menutareas.delete(0 ,tk.END)
+    
+    for task in data:
+        if task["prioridad"]:
+            prioridad="Prioritaria"
+        else:
+            prioridad="No prioritaria"    
+        if task["estado"]:
+            estado="Completada"
+        else:
+            estado="Pendiente"
+
+        menutareas.insert(tk.END, f" ID:'{task["id"]}', Tarea:{task["titulo"]}, Fecha:{task["fecha"]}, Estado:{estado} ,Prioridad:{prioridad} ") 
 
     print(data)
 
