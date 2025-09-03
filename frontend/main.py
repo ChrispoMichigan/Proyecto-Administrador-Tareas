@@ -148,8 +148,8 @@ def AddTaskViewsInCalender():
         # print(dia)
         fecha = date(year, mes, dia)
         # print(f'{year}, {mes}, {dia}')
-        cal.calevent_create(fecha, task['titulo'], "tarea")
-        cal.tag_config("tarea", background="red", foreground="white")
+        cal.calevent_create(fecha, str(task['id']), str(task['id']))
+        cal.tag_config(str(task['id']), background="red", foreground="white")
 
 
 
@@ -170,9 +170,6 @@ def BorrarTarea ():
     print(fecha)
     fechaFormateada = date(int(fecha[0]), int(fecha[1]), int(fecha[2]))
 
-    cal.calevent_create(fechaFormateada, "Borrado", "tarea")
-    cal.tag_config("tarea", background="white", foreground="black")
-
     if seleccion:
         id=dato.split("'")[1]
         data["id"] = int(id)
@@ -180,6 +177,9 @@ def BorrarTarea ():
         print("no selecciono una tarea")
         return
     
+    cal.calevent_create(fechaFormateada, str(id), str(id))
+    cal.tag_config(str(id), background="white", foreground="black")
+
     url = "http://127.0.0.1:8000/deleteTaskById"
     response = requests.post(url, json=data)
 
