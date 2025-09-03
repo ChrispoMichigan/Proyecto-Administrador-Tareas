@@ -1,4 +1,3 @@
-import json
 from fastapi import FastAPI
 from datetime import date
 from pydantic import BaseModel

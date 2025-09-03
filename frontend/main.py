@@ -6,6 +6,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import simpledialog
 from tkcalendar import Calendar
+import requests
 
 
 main = tk.Tk()
@@ -92,34 +93,57 @@ def Add_tarea():
     
 
     #aqui se usaria la funcion para añadir tareas a la lista
-    
     data = {
-        "data" : {
-            "id": 1,
-            "titulo": "tarea 1",
-            "fecha": "2025-09-01",
-            "estado": False,
-            "prioridad": False
-        }
+        "titulo": None,
+        "fecha": None,
+        "estado": False,
+        "prioridad": False
     }
+
+    data['fecha'] = str(fecha_date)
+
     tareaName = simpledialog.askstring("Nombre de la tarea", "Ingrese el nombre de la tarea", parent=main)
     if tareaName :
-        tareaName = data ['data']['titulo']
+        data['titulo'] = tareaName
     else :
         messagebox.showwarning("Error", "No se ingreso un nombre")
+        return
     
-    year = data ['data']['fecha'] [0:4]
+    # year = data ['data']['fecha'] [0:4]
     
-    month = data ['data']['fecha'] [5:7]
-    day = data ['data']['fecha'] [8:-1]
+    # month = data ['data']['fecha'] [5:7]
+    # day = data ['data']['fecha'] [8:-1]
     
-    fecha = date(int(year), int(month), int(day))
+    # fecha = date(int(year), int(month), int(day))
 
+    url = "http://127.0.0.1:8000/createTask"
+    response = requests.post(url, json=data)
 
-    cal.calevent_create(fecha, data['data']['titulo'], "tarea")
+    if response.status_code == 200:
+        print('Se guardo la tarea')
 
-    cal.tag_config("tarea", background="red", foreground="white")
-    
+    AddTaskViewsInCalender()
+    AddTaskViewsInList()
+
+def AddTaskViewsInCalender():
+    url = "http://127.0.0.1:8000/getAllTasks"
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        print('Error')
+    else:
+        data = response.json() 
+
+    for task in data:
+        # print(task)
+        year = int(task['fecha'][:4])
+        mes = int(task['fecha'][5:7])
+        dia = int(task['fecha'][8:])
+        # print(dia)
+        fecha = date(year, mes, dia)
+        # print(f'{year}, {mes}, {dia}')
+        cal.calevent_create(fecha, task['titulo'], "tarea")
+        cal.tag_config("tarea", background="red", foreground="white")
 
 btnAdd = ttk.Button(master=main, text="añadir tarea", command=Add_tarea)
 btnAdd.pack(pady=10)
@@ -141,5 +165,16 @@ btnCompletado.place(relx=0.75, rely=0.85)
 tk.Label(master=main, text="Tareas:").place(relx=0.2, rely=0.55)
 menutareas = tk.Listbox(master=main, width=70, height=12)
 menutareas.place(relx= 0.1, rely=0.6)
+
+def AddTaskViewsInList():
+    url = "http://127.0.0.1:8000/getAllTasks"
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        print('Error')
+    else:
+        data = response.json()
+
+    print(data)
 
 main.mainloop()
