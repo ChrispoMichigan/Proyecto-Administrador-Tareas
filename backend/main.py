@@ -24,12 +24,6 @@ class ListaEnlazada:
     def __init__(self):
         self.head = None
 
-    def insertar_al_inicio(self, datos):
-        # datos debe ser una instancia de Data
-        nuevo_nodo = Nodo(datos)
-        nuevo_nodo.siguiente = self.head
-        self.head = nuevo_nodo
-
     def insertar_al_final(self, datos):
         # datos debe ser una instancia de Data
         nuevo_nodo = Nodo(datos)
