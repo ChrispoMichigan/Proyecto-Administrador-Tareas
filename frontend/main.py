@@ -154,23 +154,78 @@ btnAdd.pack(pady=10)
 def BorrarTarea ():
     data={"id":None}
 
-
     seleccion=menutareas.curselection()
-    print(type(seleccion))
-    print((seleccion))
+    #print(type(seleccion))
+    #print((seleccion[0]))
+    #print(type(menutareas.get(seleccion[0])))
+    dato = menutareas.get(seleccion[0])
     if seleccion:
-        id=seleccion.split(' ')[0]
+        id=dato.split("'")[1]
         data["id"] = int(id)
     else:
         print("no selecciono una tarea")
         return
-
+    
     url = "http://127.0.0.1:8000/deleteTaskById"
     response = requests.post(url, json=data)
 
     if response.status_code != 200:
         print('Error')
+    print(response.json)
+
+    AddTaskViewsInCalender()
+    AddTaskViewsInList()
+
+def cambiarEstado():
+    data={"id":None}
+
+    seleccion=menutareas.curselection()
+    #print(type(seleccion))
+    #print((seleccion[0]))
+    #print(type(menutareas.get(seleccion[0])))
+    dato = menutareas.get(seleccion[0])
+    if seleccion:
+        id=dato.split("'")[1]
+        data["id"] = int(id)
+    else:
+        print("no selecciono una tarea")
+        return
     
+    url = "http://127.0.0.1:8000/changeTaskStatusById"
+    response = requests.post(url, json=data)
+
+    if response.status_code != 200:
+        print('Error')
+    print(response.json)
+
+    AddTaskViewsInCalender()
+    AddTaskViewsInList()
+
+def cambiarPrioridad():
+    data={"id":None}
+
+    seleccion=menutareas.curselection()
+    #print(type(seleccion))
+    #print((seleccion[0]))
+    #print(type(menutareas.get(seleccion[0])))
+    dato = menutareas.get(seleccion[0])
+    if seleccion:
+        id=dato.split("'")[1]
+        data["id"] = int(id)
+    else:
+        print("no selecciono una tarea")
+        return
+    
+    url = "http://127.0.0.1:8000/changeTaskPriorityById"
+    response = requests.post(url, json=data)
+
+    if response.status_code != 200:
+        print('Error')
+    print(response.json)
+
+    AddTaskViewsInCalender()
+    AddTaskViewsInList()
+
 
 
 #boton para borrar sin comando aun
@@ -226,6 +281,8 @@ def AddTaskViewsInList():
 
         menutareas.insert(tk.END, f" ID:'{task["id"]}', Tarea:{task["titulo"]}, Fecha:{task["fecha"]}, Estado:{estado} ,Prioridad:{prioridad} ") 
 
-    print(data)
+AddTaskViewsInCalender()
+AddTaskViewsInList()
 
 main.mainloop()
+
