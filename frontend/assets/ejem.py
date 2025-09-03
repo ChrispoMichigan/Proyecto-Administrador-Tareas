@@ -58,11 +58,11 @@ def color_date():
     fecha_date = cal.selection_get()
     print(f"Fecha seleccionada:", fecha_date)
     
-    response = requests.get("http://127.0.0.1:8000/getAllTasks")
+    response = requests.get("http://127.0.0.1:8000/")
 
     if response.status_code == 200:
         data = response.json()
-        # print(data)
+        print(data)
     else:
         print("Error:", response.status_code)
     print(len(data['data']))
