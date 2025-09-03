@@ -134,6 +134,12 @@ def AddTaskViewsInCalender():
     else:
         data = response.json() 
 
+    try:
+        if list(data.keys())[0] == "Error":
+            return
+    except:
+        print("An exception occurred")
+
     for task in data:
         # print(task)
         year = int(task['fecha'][:4])
@@ -158,7 +164,15 @@ def BorrarTarea ():
     #print(type(seleccion))
     #print((seleccion[0]))
     #print(type(menutareas.get(seleccion[0])))
+    # cal.tag_config("tarea", background="red", foreground="white")
     dato = menutareas.get(seleccion[0])
+    fecha = dato.split("'")[3].split("-")
+    print(fecha)
+    fechaFormateada = date(int(fecha[0]), int(fecha[1]), int(fecha[2]))
+
+    cal.calevent_create(fechaFormateada, "Borrado", "tarea")
+    cal.tag_config("tarea", background="white", foreground="black")
+
     if seleccion:
         id=dato.split("'")[1]
         data["id"] = int(id)
@@ -226,8 +240,6 @@ def cambiarPrioridad():
     AddTaskViewsInCalender()
     AddTaskViewsInList()
 
-
-
 #boton para borrar sin comando aun
 btnDelete = ttk.Button(master=main, text="BorrarTarea",command=BorrarTarea)
 btnDelete.place(relx=0.75, rely=0.65)
@@ -267,6 +279,14 @@ def AddTaskViewsInList():
         print('Error')
     else:
         data = response.json()
+
+    try:
+        if list(data.keys())[0] == "Error":
+            menutareas.delete(0 ,tk.END)
+            return
+    except:
+        print("An exception occurred")
+
     menutareas.delete(0 ,tk.END)
     
     for task in data:
@@ -279,7 +299,7 @@ def AddTaskViewsInList():
         else:
             estado="Pendiente"
 
-        menutareas.insert(tk.END, f" ID:'{task["id"]}', Tarea:{task["titulo"]}, Fecha:{task["fecha"]}, Estado:{estado} ,Prioridad:{prioridad} ") 
+        menutareas.insert(tk.END, f" ID:'{task["id"]}', Tarea:{task["titulo"]}, Fecha:'{task["fecha"]}', Estado:{estado} ,Prioridad:{prioridad} ") 
 
 AddTaskViewsInCalender()
 AddTaskViewsInList()
