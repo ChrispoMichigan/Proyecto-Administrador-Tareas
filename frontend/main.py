@@ -42,12 +42,8 @@ listbox.config(xscrollcommand=scrollbar2.set)
 
 
 
-#recordatorios de prueba
-for i in range (5):
-    listbox.insert(tk.END, f"recordatorio {i}")
 
 def Add_recordatorio():
-    #aqui se usaria la funcion para añadir tareas a la lista
     dataR = {
         "data" : {
             "id": 1,
@@ -60,14 +56,22 @@ def Add_recordatorio():
          
     else :
         messagebox.showwarning("Error", "No se ingreso recordatorio")
-
+        return
     listbox.insert(tk.END, f" {recordatorio}")
 
-
-#boton para añadir recordatorios que aun no le he hecho la funcion 
-btnRecordatorio = ttk.Button(master=main, text="añadir recordatorio", style="button.TButton",command=Add_recordatorio)
-btnRecordatorio.place(x=550, y=207, height=40)
-
+def Del_recordatorio():
+    seleccion = listbox.curselection()
+    if seleccion:    
+        index = seleccion[0]
+        listbox.delete(index)
+    else:
+        messagebox.showwarning("Error", "No se ha seleccionado ningún recordatorio.")
+#boton para añadir recordatorios 
+btnRecordatorio = ttk.Button(master=main, text="añadir", style="button.TButton",command=Add_recordatorio)
+btnRecordatorio.place(x=510, y=207, height=40)
+#boton para Borrar recordatorios 
+btnDeleteRecordatorio = ttk.Button(master=main, text="Eliminar", style="button.TButton",command=Del_recordatorio)
+btnDeleteRecordatorio.place(x=600, y=207, height=40)
 
 style.configure("button.TButton", background="#E4E2E2", foreground="#000")
 style.map("button.TButton", background=[("active", "#E4E2E2")], foreground=[("active", "#000")])
@@ -80,6 +84,19 @@ option_menu_var = tk.StringVar(value="filtros")
 option_menu = ttk.Combobox(main, textvariable=option_menu_var, values=option_menu_options, style="option_menu.TCombobox")
 option_menu.place(x=180, y=320, width=150, height=40)
 
+
+def on_option_select(event):
+    selected_option = option_menu_var.get()
+    if selected_option == "todas":
+        AddTaskViewsInList()
+    elif selected_option == "prioritarias":
+        AddTaskViewsInListFilterPriority()
+    elif selected_option == "pendientes":
+        AddTaskViewsInListFilterPending()
+    elif selected_option == "completadas":
+        AddTaskViewsInListFilterCompleted()
+    
+option_menu.bind("<<ComboboxSelected>>", on_option_select)  
 
 #calendario
 cal = Calendar(master=main, selectmode='day', date_pattern='dd-mm-yyyy') 
@@ -240,15 +257,15 @@ def cambiarPrioridad():
     AddTaskViewsInCalender()
     AddTaskViewsInList()
 
-#boton para borrar sin comando aun
+#boton para borrar 
 btnDelete = ttk.Button(master=main, text="BorrarTarea",command=BorrarTarea)
 btnDelete.place(relx=0.75, rely=0.65)
 #boton para hacer prioridad 
-btnPriority = ttk.Button(master=main, text="Establecer como prioridad",)
+btnPriority = ttk.Button(master=main, text="cambiar prioridad",command=cambiarPrioridad)
 btnPriority.place(relx=0.75, rely=0.75)
 
 #boton para marcar como completado 
-btnCompletado = ttk.Button(master=main, text="Marcar como completado",)
+btnCompletado = ttk.Button(master=main, text="Completado/pendiente",command=cambiarEstado)
 btnCompletado.place(relx=0.75, rely=0.85)
 
 
@@ -300,6 +317,86 @@ def AddTaskViewsInList():
             estado="Pendiente"
 
         menutareas.insert(tk.END, f" ID:'{task["id"]}', Tarea:{task["titulo"]}, Fecha:'{task["fecha"]}', Estado:{estado} ,Prioridad:{prioridad} ") 
+    selected_option = option_menu_var.get()
+    if selected_option == "prioritarias":
+        AddTaskViewsInListFilterPriority()
+    elif selected_option == "pendientes":
+        AddTaskViewsInListFilterPending()
+    elif selected_option == "completadas":
+        AddTaskViewsInListFilterCompleted()
+
+
+def AddTaskViewsInListFilterPriority():
+    url = "http://127.0.0.1:8000/getAllTasks"
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        print('Error')
+    else:
+        data = response.json()
+    menutareas.delete(0 ,tk.END)
+    
+    for task in data:
+        if task["prioridad"]:
+            prioridad="Prioritaria"
+            if task["estado"]:
+                estado="Completada"
+            else:
+                estado="Pendiente"
+
+            menutareas.insert(tk.END, f" ID:'{task["id"]}', Tarea:{task["titulo"]}, Fecha:'{task["fecha"]}', Estado:{estado} ,Prioridad:{prioridad} ") 
+
+        else:
+            prioridad="No prioritaria"    
+
+
+
+def AddTaskViewsInListFilterCompleted():
+    url = "http://127.0.0.1:8000/getAllTasks"
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        print('Error')
+    else:
+        data = response.json()
+    menutareas.delete(0 ,tk.END)
+    
+    for task in data:
+        if task["estado"]:
+            estado="Completada"
+            if task["prioridad"]:
+                prioridad="Prioritaria"
+            else:
+                prioridad="No prioritaria"
+
+            menutareas.insert(tk.END, f" ID:'{task["id"]}', Tarea:{task["titulo"]}, Fecha:'{task["fecha"]}', Estado:{estado} ,Prioridad:{prioridad} ") 
+
+
+        else:
+            estado="Pendiente"
+        
+def AddTaskViewsInListFilterPending():
+    url = "http://127.0.0.1:8000/getAllTasks"
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        print('Error')
+    else:
+        data = response.json()
+    menutareas.delete(0 ,tk.END)
+    
+    for task in data:
+        if task["estado"]:
+            estado="Completada"
+        else:
+            estado="Pendiente"
+            if task["prioridad"]:
+                prioridad="Prioritaria"
+            else:
+                prioridad="No prioritaria"
+
+            menutareas.insert(tk.END, f" ID:'{task["id"]}', Tarea:{task["titulo"]}, Fecha:'{task["fecha"]}', Estado:{estado} ,Prioridad:{prioridad} ") 
+
 
 AddTaskViewsInCalender()
 AddTaskViewsInList()
