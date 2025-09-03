@@ -98,6 +98,17 @@ class ListaEnlazada:
             return {"Sucess" : "Estado cambiado a falso"}
         data.estado = True
         return {"Sucess" : "Estado cambiado a verdadero"}
+    
+    def cambiarPrioridadTarea(self, id):
+        data = self.buscar(id)
+        if data is None:
+            return {"Error": f"No se encontró tarea con id {id}"}
+        
+        if data.prioridad:
+            data.prioridad = False
+            return {"Sucess" : "Prioridad cambiada a falso"}
+        data.prioridad = True
+        return {"Sucess" : "Prioridad cambiada a verdadero"}
 
 
 lista_tareas = ListaEnlazada()
@@ -147,6 +158,10 @@ def changeTaskStatusById(task : TaskId):
     response = lista_tareas.cambiarEstadoTarea(task.id)
     return response
 
+@app.post("/changeTaskPriorityById")
+def changeTaskPriorityById(task : TaskId):
+    response = lista_tareas.cambiarPrioridadTarea(task.id)
+    return response
 
 # @app.get("/")
 # def read_root():
